@@ -1,0 +1,46 @@
+######################################################
+#            2D Conduction Post-processing           #
+#              Created by J. Mark Epps               #
+#          Part of Masters Thesis at UW 2018-2020    #
+######################################################
+
+######################################################
+#			Location and files
+#	Directory:Relative path to data
+#	Times: Times in file names separated by commas OR ALL for all files
+######################################################
+
+Directory:..\Nanothermite\Data\dc\1um\5
+Times:ALL
+#Times:1.000017,1.100015,1.200012
+#Times:0.225000,0.250000,0.275000
+
+######################################################
+#			Plots
+#	Indicate coordinates to focus plots on; None for max if end of domain
+#	Units are mm
+#	1D_Plots: True OR None; output 1D plots along centre
+#	Phi_Plots: True OR None; output reaction rate contours
+#	Darcy_vel: True OR None; output darcy velocity contours (1 per direction)
+#	Time_Temp_Pos: Position in array to extract data for Post_timeEvolv.py script ONLY
+#	Variable: Variable to plot for Post_timeEvolv (Temperature, Pressure, eta, rho_g, rho_s)
+######################################################
+
+x_min:0
+x_max:ALL
+y_min:0
+y_max:ALL
+
+Temp_min:400
+Temp_max:4000
+Temp_pts:10
+
+eta_pts:2
+
+1D_Plots:None
+Phi_Plots:None
+Darcy_vel:None
+Contour_Plots:None
+
+Time_Temp_Pos:1117,112
+Variable:Pressure
