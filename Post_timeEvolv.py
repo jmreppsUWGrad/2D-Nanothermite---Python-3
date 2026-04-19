@@ -45,10 +45,10 @@ inputargs=sys.argv
 if len(inputargs)>1:
     inp_file=inputargs[1]
 else:
-    print 'Usage is: python Post.py [Input File]\n'
-    print 'where\n'
-    print '[Input File] is the Post-processing input file'
-    print '***********************************'
+    print('Usage is: python Post.py [Input File]\n')
+    print('where\n')
+    print('[Input File] is the Post-processing input file')
+    print('***********************************')
     sys.exit('Post-processing halted')
 
 ##############################################################
@@ -160,4 +160,4 @@ fig.tight_layout()  # otherwise the right y-label is slightly clipped
 fig.savefig(var+'_time_'+str(Phi_graphs)+figType,dpi=300)
 plt.close(fig)
 
-print '\nPost-processing complete'
+print('\nPost-processing complete')

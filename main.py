@@ -72,17 +72,17 @@ if len(inputargs)>2:
     settings['Output_directory']=inputargs[2]
 else:
     if rank==0:
-        print 'Usage is: python main.py [Input file] [Output directory]\n'
-        print 'where\n'
-        print '[Input file] is the name of the input file with extension; must be in current directory'
-        print '[Output directory] is the directory to output the data; will create relative to current directory if it does not exist'
-        print '***********************************'
+        print('Usage is: python main.py [Input file] [Output directory]\n')
+        print('where\n')
+        print('[Input file] is the name of the input file with extension; must be in current directory')
+        print('[Output directory] is the directory to output the data; will create relative to current directory if it does not exist')
+        print('***********************************')
     sys.exit('Solver shut down on %i'%(rank))
 ##########################################################################
 # -------------------------------------Read input file
 ##########################################################################
 if rank==0:
-    print 'Reading input file...'
+    print('Reading input file...')
 fin=FileClasses.FileIn(input_file, 0)
 fin.Read_Input(settings, Sources, Species, BCs)
 comm.Barrier()
@@ -99,14 +99,14 @@ except:
 # -------------------------------------Initialize solver and domain
 ##########################################################################
 if rank==0:
-    print '################################'
-    print 'Initializing geometry package...'
+    print('################################')
+    print('Initializing geometry package...')
 domain=Geom.TwoDimDomain(settings, Species, settings['Domain'], rank)
 domain.mesh()
 hx,hy=domain.CV_dim()
 if rank==0:
-    print '################################'
-    print 'Initializing MPI and solver...'
+    print('################################')
+    print('Initializing MPI and solver...')
     np.save('X', domain.X, False)
     np.save('Y', domain.Y, False)
 mpi=mpi_routines.MPI_comms(comm, rank, size, Sources, Species)
@@ -125,8 +125,8 @@ domain.create_var(Species)
 solver=Solvers.TwoDimSolver(domain, settings, Sources, copy.deepcopy(BCs), comm)
 if rank==0:
     settings['MPI_arrangment']=domain.proc_arrang.copy()
-    print '################################'
-    print 'Initializing domain...'
+    print('################################')
+    print('Initializing domain...')
 
 time_max='0.000000'
 T=settings['Temperature_IC']*np.ones_like(domain.E)
@@ -176,8 +176,8 @@ del rhoC,T
 # ------------------------Write Input File settings to output directory
 ##########################################################################
 if rank==0:
-    print '################################'
-    print 'Saving input file to output directory...'
+    print('################################')
+    print('Saving input file to output directory...')
     #datTime=str(datetime.date(datetime.now()))+'_'+'{:%H%M}'.format(datetime.time(datetime.now()))
     isBinFile=False
     
@@ -189,9 +189,9 @@ if rank==0:
     # Write input file with settings
     input_file.input_writer_cond(settings, Sources, Species, BCs)
     input_file.close()
-    print '################################\n'
+    print('################################\n')
     
-    print 'Saving data to numpy array files...'
+    print('Saving data to numpy array files...')
 #print '****Rank: %i, first save to numpy files'%(rank)
 mpi.save_data(domain, Sources, Species, time_max)
 
@@ -217,7 +217,7 @@ elif settings['total_time']=='None':
 ign,ign_0=0,0
 
 if rank==0:
-    print 'Solving:'
+    print('Solving:')
 while nt<settings['total_time_steps'] and t<settings['total_time']:
     # First point in calculating combustion propagation speed
     if st.find(Sources['Source_Kim'],'True')>=0 and ign==1:
@@ -247,10 +247,10 @@ while nt<settings['total_time_steps'] and t<settings['total_time']:
     if err>0:
         if rank==0:
             input_file=open('Input_file.txt', 'a')
-            print '#################### Solver aborted #######################'
-            print '################### Error code %i'%(err)
-            print 'Error codes: 1-time step, 2-Energy, 3-reaction progress, 4-Species balance'
-            print 'Saving data to numpy array files...'
+            print('#################### Solver aborted #######################')
+            print('################### Error code %i'%(err))
+            print('Error codes: 1-time step, 2-Energy, 3-reaction progress, 4-Species balance')
+            print('Saving data to numpy array files...')
             input_file.write('#################### Solver aborted #######################\n')
             input_file.write('Time step %i, Time elapsed=%f, error code=%i;\n'%(nt,t,err))
             input_file.write('Error codes: 1-time step, 2-Energy, 3-reaction progress, 4-Species balance\n')
@@ -263,7 +263,7 @@ while nt<settings['total_time_steps'] and t<settings['total_time']:
         if domain.proc_top<0:
             solver.BCs.BCs['bc_north_E']=BCs['bc_right_E']
         if rank==0:
-	    print 'Ignition occurred at t=%f ms'%(t*1000)
+            print('Ignition occurred at t=%f ms'%(t*1000))
             input_file=open('Input_file.txt', 'a')
             input_file.write('##bc_north_E_new:')
             input_file.write(str(BCs['bc_right_E'])+'\n')
@@ -287,7 +287,7 @@ while nt<settings['total_time_steps'] and t<settings['total_time']:
     if (output_data_nt!=0 and nt%output_data_nt==0) or \
         (output_data_t!=0 and (t>=output_data_t*t_inc and t-dt<output_data_t*t_inc)):
         if rank==0:
-            print 'Saving data to numpy array files...'
+            print('Saving data to numpy array files...')
             input_file=open('Input_file.txt', 'a')
             try:
                 input_file.write('Wave speed [m/s] at t=%f ms: inst-%.2f, avg-%.2f\n'%(t*1000, (v_1-v_0)/dt, v/N))
@@ -301,18 +301,18 @@ if rank==0:
     time_end=time.time()
     input_file=open('Input_file.txt', 'a')
     input_file.write('Final time step size: %f microseconds\n'%(dt*10**6))
-    print 'Ignition time: %f ms'%(tign*1000)
+    print('Ignition time: %f ms'%(tign*1000))
     input_file.write('Ignition time: %f ms\n'%(tign*1000))
-    print 'Solver time per 1000 time steps: %f min'%((time_end-time_begin)/60.0*1000/nt)
+    print('Solver time per 1000 time steps: %f min'%((time_end-time_begin)/60.0*1000/nt))
     input_file.write('Solver time per 1000 time steps: %f min\n'%((time_end-time_begin)/60.0*1000/nt))
-    print 'Number of time steps completed: %i'%(nt)
+    print('Number of time steps completed: %i'%(nt))
     input_file.write('Number of time steps completed: %i\n'%(nt))
     try:
-        print 'Average wave speed: %.2f m/s'%(v/N)
+        print('Average wave speed: %.2f m/s'%(v/N))
         input_file.write('Average wave speed: %.2f m/s\n'%(v/N))
         input_file.close()
     except:
-        print 'Average wave speed: 0 m/s'
+        print('Average wave speed: 0 m/s')
         input_file.write('Average wave speed: 0 m/s\n')
         input_file.close()
     print('Solver has finished its run')

@@ -154,9 +154,9 @@ class runge_kutta():
     def __init__(self, scheme):
         self.scheme = scheme.upper()
         if scheme.upper() not in scheme_data.keys():
-            print "Unrecognized Runge Kutta scheme " + scheme
-            print "Select from : ", sorted(self.listSupportedSchemes())
-            print "Or 'Euler' "
+            print("Unrecognized Runge Kutta scheme " + scheme)
+            print("Select from : ", sorted(self.listSupportedSchemes()))
+            print("Or 'Euler' ")
             self.Nk=-1
             return
         self.rk_substep_fraction =   scheme_data[self.scheme]["rk_substep_fraction"]

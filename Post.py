@@ -53,10 +53,10 @@ inputargs=sys.argv
 if len(inputargs)>1:
     inp_file=inputargs[1]
 else:
-    print 'Usage is: python Post.py [Input File]\n'
-    print 'where\n'
-    print '[Input File] is the Post-processing input file'
-    print '***********************************'
+    print('Usage is: python Post.py [Input File]\n')
+    print('where\n')
+    print('[Input File] is the Post-processing input file')
+    print('***********************************')
     sys.exit('Post-processing halted')
 
 ##############################################################
@@ -315,7 +315,7 @@ for time in times:
                 plt.close(fig)
             Y_tot+=Y_0[i]
     except:
-        print 'Processed '+time
+        print('Processed '+time)
         continue
     
     # Darcy velocities and pressure contours
@@ -378,7 +378,7 @@ for time in times:
         fig.savefig('v_'+time+'.png')
         plt.close(fig)
     
-    print 'Processed '+time
+    print('Processed '+time)
     fout.write('     Mass balance residual: %.3f'%(\
                           np.sum(Y_tot-(float(st.split(settings['rho_IC'], ',')[0])*settings['Porosity']+\
                             float(st.split(settings['rho_IC'], ',')[1])*(1-settings['Porosity'])))/\
@@ -465,7 +465,7 @@ fout.write('Ignition delay: %f\n'%(t_ign*u_ref/L_ref))
 #               1D plots
 ##############################################################
 if st.find(OneD_graphs,'True')>=0:
-    print 'Creating 1D plots'
+    print('Creating 1D plots')
     fig=plt.figure(figsize=fig_size)
     for time in times:
         T=np.load('T_'+time+'.npy', False)
@@ -498,4 +498,4 @@ if st.find(OneD_graphs,'True')>=0:
         plt.close(fig)
 
 fout.close()
-print '\nPost-processing complete'
+print('\nPost-processing complete')

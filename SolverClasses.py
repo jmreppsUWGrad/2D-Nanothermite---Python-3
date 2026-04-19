@@ -333,7 +333,7 @@ class TwoDimSolver():
         if (np.isnan(dt)) or (dt<=0):
             return 1, dt, ign
         if self.Domain.rank==0:
-            print 'Time step %i, Step size=%.7fms, Time elapsed=%fs;'%(nt+1,dt*1000, t+dt)
+            print('Time step %i, Step size=%.7fms, Time elapsed=%fs;'%(nt+1,dt*1000, t+dt))
         
         ###################################################################
         # Calculate source and Porous medium terms
