@@ -114,12 +114,12 @@ class MPI_comms():
         while maxDim>=1:
             if self.size%maxDim==0 and domain.Nx%maxDim==0 and domain.Ny%(self.size/maxDim)==0:
                 ranks=ranks.reshape((self.size/maxDim, maxDim))
-		break
-	    elif self.size%maxDim==0 and domain.Nx%(self.size/maxDim)==0 and domain.Ny%maxDim==0:
-		ranks=ranks.reshape((maxDim, self.size/maxDim))
-		break
+                break
+            elif self.size%maxDim==0 and domain.Nx%(self.size/maxDim)==0 and domain.Ny%maxDim==0:
+                ranks=ranks.reshape((maxDim, self.size/maxDim))
+                break
             else:
-		maxDim-=1
+                maxDim-=1
         if maxDim==0:
             return 1
         #ranks=ranks.reshape((self.size/maxDim, maxDim))
@@ -143,7 +143,7 @@ class MPI_comms():
         
         # Designate neighboring processes
         #for i in range(self.size/maxDim):
-	for i in range(len(ranks[:,0])):
+        for i in range(len(ranks[:,0])):
             # Unique case where there is only one row of processes
             if self.rank in ranks[i] and maxDim==1:
                 domain.proc_left=-1
