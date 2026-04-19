@@ -36,8 +36,6 @@ keys_BCs=     ['bc_left_E','bc_right_E','bc_south_E','bc_north_E',\
 
 newline_check='\n' # This should be \n for Windows, \r for Ubuntu
 
-import string as st
-
 class FileOut():
     def __init__(self, filename, isBin):
         self.name=filename
@@ -115,7 +113,7 @@ class FileOut():
             # Input file readable format
             self.fout.write(i)
             self.fout.write(':')
-            if st.find(i,'rad')>=0:
+            if i.find('rad')>=0:
                 if BCs[i]=='None':
                     self.Write_single_line('None')
                 else:
@@ -156,8 +154,8 @@ class FileIn():
         
     def Read_Input(self, settings, Sources, Species, BCs):
         for line in self.fin:
-            if st.find(line, ':')>0 and st.find(line, '#')!=0:
-                line=st.split(line, ':')
+            if line.find(':')>0 and line.find('#')!=0:
+                line=line.split(':')
                 # Domain settings
                 if line[0] in keys_Settings:
                     if line[0]=='Nodes_x' or line[0]=='Nodes_y':
@@ -167,11 +165,11 @@ class FileIn():
                             settings[line[0]]=float(line[1])
                         # Remove \n or \r
                         except:
-                            settings[line[0]]=st.split(line[1], newline_check)[0]
+                            settings[line[0]]=line[1].split(newline_check)[0]
                 # Mesh settings
                 if line[0] in keys_mesh:
-                    if st.find(line[0], 'type')>=0:
-                        settings[line[0]]=st.split(line[1], newline_check)[0]
+                    if line[0].find('type')>=0:
+                        settings[line[0]]=line[1].split(newline_check)[0]
                     else:
                         settings[line[0]]=float(line[1])
                 # Source term info
@@ -179,37 +177,37 @@ class FileIn():
                     try:
                         Sources[line[0]]=float(line[1])
                     except:
-                        Sources[line[0]]=st.split(line[1], newline_check)[0]
+                        Sources[line[0]]=line[1].split(newline_check)[0]
                 # Species info
                 elif line[0] in keys_Species:
                     try:
                         Species[line[0]]=float(line[1])
                     except:
-                        Species[line[0]]=st.split(line[1], newline_check)[0]
+                        Species[line[0]]=line[1].split(newline_check)[0]
                             
                 # Time advancement details
                 elif line[0] in keys_Time_adv:
-                    if line[0]=='Time_Scheme' or st.find(line[1], 'None')>=0\
+                    if line[0]=='Time_Scheme' or line[1].find('None')>=0\
                         or line[0]=='Restart':
-                        settings[line[0]]=st.split(line[1], newline_check)[0]
+                        settings[line[0]]=line[1].split(newline_check)[0]
                     elif line[0]=='total_time_steps' or line[0]=='Max_iterations'\
                         or line[0]=='Number_Data_Output':
                         settings[line[0]]=int(line[1])
                     elif line[0]=='Output_directory':
-                        settings[line[0]]=line[1]+':'+st.split(line[2], newline_check)[0]
+                        settings[line[0]]=line[1]+':'+line[2].split(newline_check)[0]
                     else:
                         settings[line[0]]=float(line[1])
                 # Boundary conditions (all equations)
                 elif line[0] in keys_BCs:
-                    BC_info=st.split(line[1], ',')
+                    BC_info=line[1].split(',')
                     BCs[line[0]]=[]
                     # Radiation BCs
-                    if st.find(line[0], 'rad')>=0:
+                    if line[0].find('rad')>=0:
                         try:
                             BCs[line[0]]=[float(BC_info[0])]
                             BCs[line[0]]+=[float(BC_info[1])]
                         except:
-                            BCs[line[0]]=st.split(BC_info[0], newline_check)[0]
+                            BCs[line[0]]=BC_info[0].split(newline_check)[0]
                         del BC_info[0]
                     # All other BCs
                     i=0
