@@ -1,3 +1,8 @@
 *.pyc
 *.png
 git_maintain.bat
+Input_File_axi.txt
+Input_File_noSource.txt
+Input_File_pl.txt
+Diary_of_Coding.txt
+Tests
