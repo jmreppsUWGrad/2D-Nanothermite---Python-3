@@ -26,7 +26,6 @@ of using with 2D Compressible Navier-Stokes solver.
 
 """
 import numpy as np
-import string as st
 from MatClasses import Cp, therm_cond
 
 class TwoDimDomain():
@@ -58,14 +57,14 @@ class TwoDimDomain():
         
         # Process the thermal properties options
         if (type(self.k) is str):
-            self.k=st.split(self.k, ',')
+            self.k=self.k.split(',')
         if (type(self.Cv) is str):
-            self.Cv=st.split(self.Cv, ',')
+            self.Cv=self.Cv.split(',')
         
         # Species model options
         if self.model=='Species':
             self.species_keys=['g','s']
-            self.rho=st.split(self.rho, ',')
+            self.rho=self.rho.split(',')
             self.mu=settings['Darcy_mu']
             self.part_diam=settings['Carmen_diam']
             self.kozeny=settings['Kozeny_const']
@@ -75,11 +74,11 @@ class TwoDimDomain():
             self.k_g=Species['k_g']
             # Process thermal properties options
             if (type(self.Cv_g) is str):
-                self.Cv_g=st.split(self.Cv_g, ',')
+                self.Cv_g=self.Cv_g.split(',')
             if (type(self.Cp_g) is str):
-                self.Cp_g=st.split(self.Cp_g, ',')
+                self.Cp_g=self.Cp_g.split(',')
             if (type(self.k_g) is str):
-                self.k_g=st.split(self.k_g, ',')
+                self.k_g=self.k_g.split(',')
         
         # Object declarations for property calculations
         self.Cp_calc=Cp()

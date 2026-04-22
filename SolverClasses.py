@@ -24,7 +24,6 @@ Features/assumptions:
 
 import numpy as np
 import copy
-import string as st
 import Source_Comb
 import BCClasses
 from mpi4py import MPI
@@ -48,7 +47,7 @@ class TwoDimSolver():
         self.get_source=Source_Comb.Source_terms(Sources['Ea'], Sources['A0'], Sources['dH'], Sources['gas_gen'])
         self.source_unif=Sources['Source_Uniform']
         self.source_Kim=Sources['Source_Kim']
-        self.ign=st.split(Sources['Ignition'], ',')
+        self.ign=Sources['Ignition'].split(',')
         self.ign[0]=int(self.ign[0])
         self.ign[1]=int(self.ign[1])
         

@@ -22,7 +22,6 @@ Notes on implementing Cantera:
 """
 
 import numpy as np
-import string as st
 #import cantera as ct
 
 class Source_terms():
@@ -30,7 +29,7 @@ class Source_terms():
         self.R=8.314 # J/mol/K
         self.Ea=Ea # J/mol
         self.A0=A0
-        self.dH=st.split(dH, ',')
+        self.dH=dH.split(',')
         self.dH[1]=float(self.dH[1])
         self.n=0.2 # Temperature exponent
         self.gas_gen=gs_gen
@@ -50,7 +49,7 @@ class Source_terms():
         # Clipping to 0
 #        eta[eta<10**(-10)]=0
         
-        if st.find(self.dH[0], 'vol')>=0:
+        if self.dH[0].find('vol')>=0:
             return self.dH[1]*detadt, detadt
         else:
             return rho*self.dH[1]*detadt, detadt
@@ -88,7 +87,7 @@ class Source_terms():
         # Clipping to 0
         eta[eta<10**(-5)]=0
         
-        if st.find(self.dH[0], 'vol')>=0:
+        if self.dH[0].find('vol')>=0:
             return self.dH[1]*detadt, detadt
         else:
             return rho*self.dH[1]*detadt, detadt
