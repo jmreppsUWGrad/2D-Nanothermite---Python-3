@@ -32,7 +32,8 @@ class MPI_comms():
     def split_var(self, var_global, domain):
         var_local=np.zeros(2)
         maxDim=len(domain.proc_arrang[0,:])
-        for i in range(self.size/maxDim):
+        otrDim=int(self.size/maxDim) # Need to call int function once
+        for i in range(otrDim):
             # Only take parts of array if process belongs to this part of arrangment
             # Unique case where there is only one row of processes
             if self.rank in domain.proc_arrang[i] and maxDim==1:
@@ -41,7 +42,7 @@ class MPI_comms():
                     var_local=var_global[(i)*domain.Ny:(i+1)*domain.Ny+1,:]
                     
                 # Process at y=y_max
-                elif i==self.size/maxDim-1:
+                elif i==otrDim-1:
                     var_local=var_global[(i)*domain.Ny-1:(i+1)*domain.Ny,:]
                     
                 # Interior
@@ -68,7 +69,7 @@ class MPI_comms():
                           (self.rank-domain.proc_arrang[i,0])*domain.Nx-1:(self.rank-domain.proc_arrang[i,0]+1)*domain.Nx+1]
                     
             # Processes at y=y_max
-            elif self.rank in domain.proc_arrang[i] and i==self.size/maxDim-1:
+            elif self.rank in domain.proc_arrang[i] and i==otrDim-1:
                 # Edge x=0
                 if self.rank==domain.proc_arrang[i,0]:
                     var_local=var_global[(i)*domain.Ny-1:(i+1)*domain.Ny,\
@@ -110,16 +111,17 @@ class MPI_comms():
         # Determine process arrangement
         ranks=np.linspace(0, self.size-1, self.size).astype(int) # Array of processes
         maxDim=int(np.sqrt(self.size))+1 # Square root of size (max dimension)
-        
+        otrDim=int(self.size/maxDim)
         while maxDim>=1:
-            if self.size%maxDim==0 and domain.Nx%maxDim==0 and domain.Ny%(self.size/maxDim)==0:
-                ranks=ranks.reshape((self.size/maxDim, maxDim))
+            if self.size%maxDim==0 and domain.Nx%maxDim==0 and domain.Ny%otrDim==0:
+                ranks=ranks.reshape((otrDim, maxDim))
                 break
-            elif self.size%maxDim==0 and domain.Nx%(self.size/maxDim)==0 and domain.Ny%maxDim==0:
-                ranks=ranks.reshape((maxDim, self.size/maxDim))
+            elif self.size%maxDim==0 and domain.Nx%otrDim==0 and domain.Ny%maxDim==0:
+                ranks=ranks.reshape((maxDim, otrDim))
                 break
             else:
                 maxDim-=1
+                otrDim=int(self.size/maxDim)
         if maxDim==0:
             return 1
         #ranks=ranks.reshape((self.size/maxDim, maxDim))
@@ -130,10 +132,10 @@ class MPI_comms():
                     break
                 else:
                     continue
-        
+                    
         # Discretize domain to each process
-        domain.Nx/=len(ranks[0,:])
-        domain.Ny/=len(ranks[:,0])
+        domain.Nx=int(domain.Nx/len(ranks[0,:]))
+        domain.Ny=int(domain.Ny/len(ranks[:,0]))
         
         domain.X=self.split_var(domain.X, domain)
         domain.Y=self.split_var(domain.Y, domain)
@@ -145,6 +147,8 @@ class MPI_comms():
         #for i in range(self.size/maxDim):
         for i in range(len(ranks[:,0])):
             # Unique case where there is only one row of processes
+            #print(ranks[i])
+            #print(maxDim)
             if self.rank in ranks[i] and maxDim==1:
                 domain.proc_left=-1
                 domain.proc_right=-1
@@ -159,7 +163,7 @@ class MPI_comms():
                     domain.proc_top=ranks[i+1,0]
                     
                 # Process at y=y_max
-                elif i==self.size/maxDim-1:
+                elif i==otrDim-1:
                     domain.proc_top=-1
                     domain.proc_bottom=ranks[i-1,0]
                     
