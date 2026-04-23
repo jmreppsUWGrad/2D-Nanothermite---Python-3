@@ -17,7 +17,6 @@ Features:
 """
 
 import numpy as np
-import string as st
 
 class MPI_comms():
     def __init__(self, comm, rank, size, Sources, Species):
@@ -284,7 +283,7 @@ class MPI_comms():
         self.comm.Recv(a, source=domain.proc_bottom)
         domain.E[0,:]=a
         
-        if st.find(self.Sources['Source_Kim'],'True')>=0:
+        if self.Sources['Source_Kim'].find('True')>=0:
             # Send to the left
             self.comm.send(len(domain.eta[:,1]), dest=domain.proc_left)
             sen=domain.eta[:,1].copy()
@@ -512,7 +511,7 @@ class MPI_comms():
         if self.size==1:
             np.save('T_'+time, Domain.calcProp(Domain.T_guess)[0], False)
             # Kim source term
-            if st.find(self.Sources['Source_Kim'],'True')>=0:
+            if self.Sources['Source_Kim'].find('True')>=0:
                 np.save('eta_'+time, Domain.eta, False)
             if Domain.model=='Species':
                 np.save('P_'+time, Domain.P, False)
@@ -523,7 +522,7 @@ class MPI_comms():
             T=self.compile_var(Domain.calcProp(Domain.T_guess)[0], Domain)
             np.save('T_'+time, T, False)
             # Kim source term
-            if st.find(self.Sources['Source_Kim'],'True')>=0:
+            if self.Sources['Source_Kim'].find('True')>=0:
                 eta=self.compile_var(Domain.eta, Domain)
                 np.save('eta_'+time, eta, False)
             if Domain.model=='Species':
