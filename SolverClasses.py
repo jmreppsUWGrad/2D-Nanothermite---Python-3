@@ -276,18 +276,32 @@ class TwoDimSolver():
                     del self.BCs.BCs['bc_south_E'][3*j:3+3*j]
                     i-=1
         
-    # Time step check with dx, dy, Fo number
+    # Time step check with dx, dy, Fo number, CFL and dt from input file
     def getdt(self, k, rhoC, u, v):
+        # In case no time step info was specified, return -dt for solver error
+        if type(self.Fo) is str and type(self.dt) is str \
+                and type(self.CFL) is str:
+            return -1
+        
+        dt_1=10**12
+        
         # Time steps depending on Fo
-        dt_1=np.amin(self.Fo*rhoC/k*((self.dx)**2*(self.dy)**2)/\
+        if self.Fo!='None':
+            dt_1=np.amin(self.Fo*rhoC/k*((self.dx)**2*(self.dy)**2)/\
                      ((self.dx)**2+(self.dy)**2))
         
+        # If time step size is specified
+        if self.dt!='None':
+            dt_1=min(self.dt, dt_1)
+            
         # Time steps depending on CFL (if flow model used)
-        u[u==0]=10**(-9)
-        v[v==0]=10**(-9)
-        dt_2=np.amin(self.CFL*(self.dx/np.abs(u)+self.dy/np.abs(v)))
+        if self.CFL!='None':
+            u[u==0]=10**(-9)
+            v[v==0]=10**(-9)
+            dt_2=np.amin(self.CFL*(self.dx/np.abs(u)+self.dy/np.abs(v)))
+            dt_1=min(dt_1, dt_2)
         
-        return min(dt_1,dt_2)
+        return dt_1
     
     # Interpolation function
     def interpolate(self, k1, k2, func):
@@ -319,18 +333,14 @@ class TwoDimSolver():
                     *(self.Domain.P[1:,:]-self.Domain.P[:-1,:])/self.dy[:-1,:])
         
         # Get time step
-        if self.dt=='None':
-            dt=self.getdt(k, rhoC, u, v)
-            # Collect all dt from other processes and send minimum
-            dt=self.comm.reduce(dt, op=MPI.MIN, root=0)
-            dt=self.comm.bcast(dt, root=0)
-        else:
-            dt=min(self.dt,self.getdt(k, rhoC, u, v))
-            # Collect all dt from other processes and send minimum
-            dt=self.comm.reduce(dt, op=MPI.MIN, root=0)
-            dt=self.comm.bcast(dt, root=0)
+        dt=self.getdt(k, rhoC, u, v)
+        # Collect all dt from other processes and send minimum
+        dt=self.comm.reduce(dt, op=MPI.MIN, root=0)
+        dt=self.comm.bcast(dt, root=0)
+        # If problem with time step size, exit program
         if (np.isnan(dt)) or (dt<=0):
             return 1, dt, ign
+        # If time step size good, continue
         if self.Domain.rank==0:
             print('Time step %i, Step size=%.7fms, Time elapsed=%fs;'%(nt+1,dt*1000, t+dt))
         
