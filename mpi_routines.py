@@ -239,184 +239,228 @@ class MPI_comms():
     
     # Update ghost nodes for processes
     def update_ghosts(self, domain):
+        # Processes send size of array first.
+        # Then, processes send the actual array of ghost node data.
+        # When brought over from Python 2.7, issue when no process 
+        # on left or right.
+        
+        ################### Energy terms #############################
         # Send to the left
-        self.comm.send(len(domain.E[:,1]), dest=domain.proc_left)
-        sen=domain.E[:,1].copy()
-        self.comm.Send(sen, dest=domain.proc_left)
+        if domain.proc_left!=-1:
+            self.comm.send(len(domain.E[:,1]), dest=domain.proc_left)
+            sen=domain.E[:,1].copy()
+            self.comm.Send(sen, dest=domain.proc_left)
         # Receive from the right
-        len_arr=len(domain.E[:,-1])
-        len_arr=self.comm.recv(source=domain.proc_right)
-        a=np.ones(len_arr)*domain.E[:,-1]
-        self.comm.Recv(a, source=domain.proc_right)
-        domain.E[:,-1]=a
+        if domain.proc_right!=-1:
+            len_arr=len(domain.E[:,-1])
+            len_arr=self.comm.recv(source=domain.proc_right)
+            a=np.ones(len_arr)*domain.E[:,-1]
+            self.comm.Recv(a, source=domain.proc_right)
+            domain.E[:,-1]=a
         
         # Send to the right
-        self.comm.send(len(domain.E[:,-2]), dest=domain.proc_right)
-        sen=domain.E[:,-2].copy()
-        self.comm.Send(sen, dest=domain.proc_right)
+        if domain.proc_right!=-1:
+            self.comm.send(len(domain.E[:,-2]), dest=domain.proc_right)
+            sen=domain.E[:,-2].copy()
+            self.comm.Send(sen, dest=domain.proc_right)
         # Receive from the left
-        len_arr=len(domain.E[:,0])
-        len_arr=self.comm.recv(source=domain.proc_left)
-        a=np.ones(len_arr)*domain.E[:,0]
-        self.comm.Recv(a, source=domain.proc_left)
-        domain.E[:,0]=a
+        if domain.proc_left!=-1:
+            len_arr=len(domain.E[:,0])
+            len_arr=self.comm.recv(source=domain.proc_left)
+            a=np.ones(len_arr)*domain.E[:,0]
+            self.comm.Recv(a, source=domain.proc_left)
+            domain.E[:,0]=a
         
         # Send to the bottom
-        self.comm.send(len(domain.E[1,:]), dest=domain.proc_bottom)
-        sen=domain.E[1,:].copy()
-        self.comm.Send(sen, dest=domain.proc_bottom)
+        if domain.proc_bottom!=-1:
+            self.comm.send(len(domain.E[1,:]), dest=domain.proc_bottom)
+            sen=domain.E[1,:].copy()
+            self.comm.Send(sen, dest=domain.proc_bottom)
         # Receive from the top
-        len_arr=len(domain.E[-1,:])
-        len_arr=self.comm.recv(source=domain.proc_top)
-        a=np.ones(len_arr)*domain.E[-1,:]
-        self.comm.Recv(a, source=domain.proc_top)
-        domain.E[-1,:]=a
+        if domain.proc_top!=-1:
+            len_arr=len(domain.E[-1,:])
+            len_arr=self.comm.recv(source=domain.proc_top)
+            a=np.ones(len_arr)*domain.E[-1,:]
+            self.comm.Recv(a, source=domain.proc_top)
+            domain.E[-1,:]=a
         
         # Send to the top
-        self.comm.send(len(domain.E[-2,:]), dest=domain.proc_top)
-        sen=domain.E[-2,:].copy()
-        self.comm.Send(sen, dest=domain.proc_top)
+        if domain.proc_top!=-1:
+            self.comm.send(len(domain.E[-2,:]), dest=domain.proc_top)
+            sen=domain.E[-2,:].copy()
+            self.comm.Send(sen, dest=domain.proc_top)
         # Receive from the bottom
-        len_arr=len(domain.E[0,:])
-        len_arr=self.comm.recv(source=domain.proc_bottom)
-        a=np.ones(len_arr)*domain.E[0,:]
-        self.comm.Recv(a, source=domain.proc_bottom)
-        domain.E[0,:]=a
+        if domain.proc_bottom!=-1:
+            len_arr=len(domain.E[0,:])
+            len_arr=self.comm.recv(source=domain.proc_bottom)
+            a=np.ones(len_arr)*domain.E[0,:]
+            self.comm.Recv(a, source=domain.proc_bottom)
+            domain.E[0,:]=a
+        
+        ################### Reaction progress #############################
         
         if self.Sources['Source_Kim'].find('True')>=0:
             # Send to the left
-            self.comm.send(len(domain.eta[:,1]), dest=domain.proc_left)
-            sen=domain.eta[:,1].copy()
-            self.comm.Send(sen, dest=domain.proc_left)
+            if domain.proc_left!=-1:
+                self.comm.send(len(domain.eta[:,1]), dest=domain.proc_left)
+                sen=domain.eta[:,1].copy()
+                self.comm.Send(sen, dest=domain.proc_left)
             # Receive from the right
-            len_arr=len(domain.eta[:,-1])
-            len_arr=self.comm.recv(source=domain.proc_right)
-            a=np.ones(len_arr)*domain.eta[:,-1]
-            self.comm.Recv(a, source=domain.proc_right)
-            domain.eta[:,-1]=a
+            if domain.proc_right!=-1:
+                len_arr=len(domain.eta[:,-1])
+                len_arr=self.comm.recv(source=domain.proc_right)
+                a=np.ones(len_arr)*domain.eta[:,-1]
+                self.comm.Recv(a, source=domain.proc_right)
+                domain.eta[:,-1]=a
             
             # Send to the right
-            self.comm.send(len(domain.eta[:,-2]), dest=domain.proc_right)
-            sen=domain.eta[:,-2].copy()
-            self.comm.Send(sen, dest=domain.proc_right)
+            if domain.proc_right!=-1:
+                self.comm.send(len(domain.eta[:,-2]), dest=domain.proc_right)
+                sen=domain.eta[:,-2].copy()
+                self.comm.Send(sen, dest=domain.proc_right)
             # Receive from the left
-            len_arr=len(domain.eta[:,0])
-            len_arr=self.comm.recv(source=domain.proc_left)
-            a=np.ones(len_arr)*domain.eta[:,0]
-            self.comm.Recv(a, source=domain.proc_left)
-            domain.eta[:,0]=a
+            if domain.proc_left!=-1:
+                len_arr=len(domain.eta[:,0])
+                len_arr=self.comm.recv(source=domain.proc_left)
+                a=np.ones(len_arr)*domain.eta[:,0]
+                self.comm.Recv(a, source=domain.proc_left)
+                domain.eta[:,0]=a
             
             # Send to the bottom
-            self.comm.send(len(domain.eta[1,:]), dest=domain.proc_bottom)
-            sen=domain.eta[1,:].copy()
-            self.comm.Send(sen, dest=domain.proc_bottom)
+            if domain.proc_bottom!=-1:
+                self.comm.send(len(domain.eta[1,:]), dest=domain.proc_bottom)
+                sen=domain.eta[1,:].copy()
+                self.comm.Send(sen, dest=domain.proc_bottom)
             # Receive from the top
-            len_arr=len(domain.eta[-1,:])
-            len_arr=self.comm.recv(source=domain.proc_top)
-            a=np.ones(len_arr)*domain.eta[-1,:]
-            self.comm.Recv(a, source=domain.proc_top)
-            domain.eta[-1,:]=a
+            if domain.proc_top!=-1:
+                len_arr=len(domain.eta[-1,:])
+                len_arr=self.comm.recv(source=domain.proc_top)
+                a=np.ones(len_arr)*domain.eta[-1,:]
+                self.comm.Recv(a, source=domain.proc_top)
+                domain.eta[-1,:]=a
             
             # Send to the top
-            self.comm.send(len(domain.eta[-2,:]), dest=domain.proc_top)
-            sen=domain.eta[-2,:].copy()
-            self.comm.Send(sen, dest=domain.proc_top)
+            if domain.proc_top!=-1:
+                self.comm.send(len(domain.eta[-2,:]), dest=domain.proc_top)
+                sen=domain.eta[-2,:].copy()
+                self.comm.Send(sen, dest=domain.proc_top)
             # Receive from the bottom
-            len_arr=len(domain.eta[0,:])
-            len_arr=self.comm.recv(source=domain.proc_bottom)
-            a=np.ones(len_arr)*domain.eta[0,:]
-            self.comm.Recv(a, source=domain.proc_bottom)
-            domain.eta[0,:]=a
+            if domain.proc_bottom!=-1:
+                len_arr=len(domain.eta[0,:])
+                len_arr=self.comm.recv(source=domain.proc_bottom)
+                a=np.ones(len_arr)*domain.eta[0,:]
+                self.comm.Recv(a, source=domain.proc_bottom)
+                domain.eta[0,:]=a
+        
+        ############### Species model specific ######################
         
         if domain.model=='Species':
+            ################### Pressure field #############################
             # Send to the left
-            self.comm.send(len(domain.P[:,1]), dest=domain.proc_left)
-            sen=domain.P[:,1].copy()
-            self.comm.Send(sen, dest=domain.proc_left)
+            if domain.proc_left!=-1:
+                self.comm.send(len(domain.P[:,1]), dest=domain.proc_left)
+                sen=domain.P[:,1].copy()
+                self.comm.Send(sen, dest=domain.proc_left)
             # Receive from the right
-            len_arr=len(domain.P[:,-1])
-            len_arr=self.comm.recv(source=domain.proc_right)
-            a=np.ones(len_arr)*domain.P[:,-1]
-            self.comm.Recv(a, source=domain.proc_right)
-            domain.P[:,-1]=a
+            if domain.proc_right!=-1:
+                len_arr=len(domain.P[:,-1])
+                len_arr=self.comm.recv(source=domain.proc_right)
+                a=np.ones(len_arr)*domain.P[:,-1]
+                self.comm.Recv(a, source=domain.proc_right)
+                domain.P[:,-1]=a
             
             # Send to the right
-            self.comm.send(len(domain.P[:,-2]), dest=domain.proc_right)
-            sen=domain.P[:,-2].copy()
-            self.comm.Send(sen, dest=domain.proc_right)
+            if domain.proc_right!=-1:
+                self.comm.send(len(domain.P[:,-2]), dest=domain.proc_right)
+                sen=domain.P[:,-2].copy()
+                self.comm.Send(sen, dest=domain.proc_right)
             # Receive from the left
-            len_arr=len(domain.P[:,0])
-            len_arr=self.comm.recv(source=domain.proc_left)
-            a=np.ones(len_arr)*domain.P[:,0]
-            self.comm.Recv(a, source=domain.proc_left)
-            domain.P[:,0]=a
+            if domain.proc_left!=-1:
+                len_arr=len(domain.P[:,0])
+                len_arr=self.comm.recv(source=domain.proc_left)
+                a=np.ones(len_arr)*domain.P[:,0]
+                self.comm.Recv(a, source=domain.proc_left)
+                domain.P[:,0]=a
             
             # Send to the bottom
-            self.comm.send(len(domain.P[1,:]), dest=domain.proc_bottom)
-            sen=domain.P[1,:].copy()
-            self.comm.Send(sen, dest=domain.proc_bottom)
+            if domain.proc_bottom!=-1:
+                self.comm.send(len(domain.P[1,:]), dest=domain.proc_bottom)
+                sen=domain.P[1,:].copy()
+                self.comm.Send(sen, dest=domain.proc_bottom)
             # Receive from the top
-            len_arr=len(domain.P[-1,:])
-            len_arr=self.comm.recv(source=domain.proc_top)
-            a=np.ones(len_arr)*domain.P[-1,:]
-            self.comm.Recv(a, source=domain.proc_top)
-            domain.P[-1,:]=a
+            if domain.proc_top!=-1:
+                len_arr=len(domain.P[-1,:])
+                len_arr=self.comm.recv(source=domain.proc_top)
+                a=np.ones(len_arr)*domain.P[-1,:]
+                self.comm.Recv(a, source=domain.proc_top)
+                domain.P[-1,:]=a
             
             # Send to the top
-            self.comm.send(len(domain.P[-2,:]), dest=domain.proc_top)
-            sen=domain.P[-2,:].copy()
-            self.comm.Send(sen, dest=domain.proc_top)
+            if domain.proc_top!=-1:
+                self.comm.send(len(domain.P[-2,:]), dest=domain.proc_top)
+                sen=domain.P[-2,:].copy()
+                self.comm.Send(sen, dest=domain.proc_top)
             # Receive from the bottom
-            len_arr=len(domain.P[0,:])
-            len_arr=self.comm.recv(source=domain.proc_bottom)
-            a=np.ones(len_arr)*domain.P[0,:]
-            self.comm.Recv(a, source=domain.proc_bottom)
-            domain.P[0,:]=a
+            if domain.proc_bottom!=-1:
+                len_arr=len(domain.P[0,:])
+                len_arr=self.comm.recv(source=domain.proc_bottom)
+                a=np.ones(len_arr)*domain.P[0,:]
+                self.comm.Recv(a, source=domain.proc_bottom)
+                domain.P[0,:]=a
             
+            ################### Density terms #############################
             for i in domain.species_keys:
                 # Send to the left
-                self.comm.send(len(domain.rho_species[i][:,1]), dest=domain.proc_left)
-                sen=domain.rho_species[i][:,1].copy()
-                self.comm.Send(sen, dest=domain.proc_left)
+                if domain.proc_left!=-1:
+                    self.comm.send(len(domain.rho_species[i][:,1]), dest=domain.proc_left)
+                    sen=domain.rho_species[i][:,1].copy()
+                    self.comm.Send(sen, dest=domain.proc_left)
                 # Receive from the right
-                len_arr=len(domain.rho_species[i][:,-1])
-                len_arr=self.comm.recv(source=domain.proc_right)
-                a=np.ones(len_arr)*domain.rho_species[i][:,-1]
-                self.comm.Recv(a, source=domain.proc_right)
-                domain.rho_species[i][:,-1]=a
+                if domain.proc_right!=-1:
+                    len_arr=len(domain.rho_species[i][:,-1])
+                    len_arr=self.comm.recv(source=domain.proc_right)
+                    a=np.ones(len_arr)*domain.rho_species[i][:,-1]
+                    self.comm.Recv(a, source=domain.proc_right)
+                    domain.rho_species[i][:,-1]=a
                 
                 # Send to the right
-                self.comm.send(len(domain.rho_species[i][:,-2]), dest=domain.proc_right)
-                sen=domain.rho_species[i][:,-2].copy()
-                self.comm.Send(sen, dest=domain.proc_right)
+                if domain.proc_right!=-1:
+                    self.comm.send(len(domain.rho_species[i][:,-2]), dest=domain.proc_right)
+                    sen=domain.rho_species[i][:,-2].copy()
+                    self.comm.Send(sen, dest=domain.proc_right)
                 # Receive from the left
-                len_arr=len(domain.rho_species[i][:,0])
-                len_arr=self.comm.recv(source=domain.proc_left)
-                a=np.ones(len_arr)*domain.rho_species[i][:,0]
-                self.comm.Recv(a, source=domain.proc_left)
-                domain.rho_species[i][:,0]=a
+                if domain.proc_left!=-1:
+                    len_arr=len(domain.rho_species[i][:,0])
+                    len_arr=self.comm.recv(source=domain.proc_left)
+                    a=np.ones(len_arr)*domain.rho_species[i][:,0]
+                    self.comm.Recv(a, source=domain.proc_left)
+                    domain.rho_species[i][:,0]=a
                 
                 # Send to the bottom
-                self.comm.send(len(domain.rho_species[i][1,:]), dest=domain.proc_bottom)
-                sen=domain.rho_species[i][1,:].copy()
-                self.comm.Send(sen, dest=domain.proc_bottom)
+                if domain.proc_bottom!=-1:
+                    self.comm.send(len(domain.rho_species[i][1,:]), dest=domain.proc_bottom)
+                    sen=domain.rho_species[i][1,:].copy()
+                    self.comm.Send(sen, dest=domain.proc_bottom)
                 # Receive from the top
-                len_arr=len(domain.rho_species[i][-1,:])
-                len_arr=self.comm.recv(source=domain.proc_top)
-                a=np.ones(len_arr)*domain.rho_species[i][-1,:]
-                self.comm.Recv(a, source=domain.proc_top)
-                domain.rho_species[i][-1,:]=a
+                if domain.proc_top!=-1:
+                    len_arr=len(domain.rho_species[i][-1,:])
+                    len_arr=self.comm.recv(source=domain.proc_top)
+                    a=np.ones(len_arr)*domain.rho_species[i][-1,:]
+                    self.comm.Recv(a, source=domain.proc_top)
+                    domain.rho_species[i][-1,:]=a
                 
                 # Send to the top
-                self.comm.send(len(domain.rho_species[i][-2,:]), dest=domain.proc_top)
-                sen=domain.rho_species[i][-2,:].copy()
-                self.comm.Send(sen, dest=domain.proc_top)
+                if domain.proc_top!=-1:
+                    self.comm.send(len(domain.rho_species[i][-2,:]), dest=domain.proc_top)
+                    sen=domain.rho_species[i][-2,:].copy()
+                    self.comm.Send(sen, dest=domain.proc_top)
                 # Receive from the bottom
-                len_arr=len(domain.rho_species[i][0,:])
-                len_arr=self.comm.recv(source=domain.proc_bottom)
-                a=np.ones(len_arr)*domain.rho_species[i][0,:]
-                self.comm.Recv(a, source=domain.proc_bottom)
-                domain.rho_species[i][0,:]=a
+                if domain.proc_bottom!=-1:
+                    len_arr=len(domain.rho_species[i][0,:])
+                    len_arr=self.comm.recv(source=domain.proc_bottom)
+                    a=np.ones(len_arr)*domain.rho_species[i][0,:]
+                    self.comm.Recv(a, source=domain.proc_bottom)
+                    domain.rho_species[i][0,:]=a
                 
     # General function to compile a variable from all processes
     def compile_var(self, var, Domain):
