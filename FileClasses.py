@@ -119,7 +119,7 @@ class FileOut():
                 else:
                     self.Write_single_line(str(BCs[i][0])+','+str(BCs[i][1]))
             else:
-                for j in range(len(BCs[i])/3):
+                for j in range(int(len(BCs[i])/3)):
                     self.fout.write(BCs[i][3*j]+',')
                     if BCs[i][3*j]=='C':
                         self.fout.write(str(BCs[i][1+3*j][0])+',')
@@ -128,7 +128,7 @@ class FileOut():
                         self.fout.write(str(BCs[i][1+3*j])+',')
                     self.fout.write(str(BCs[i][2+3*j][0])+',')
                     self.fout.write(str(BCs[i][2+3*j][1]))
-                    if len(BCs[i])/3-j!=1:
+                    if int(len(BCs[i])/3)-j!=1:
                         self.fout.write(',')
                     else:
                         self.fout.write('\n')
