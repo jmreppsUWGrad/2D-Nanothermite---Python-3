@@ -42,7 +42,7 @@ class BCs():
     # Energy BCs
     def Energy(self, E, T_prev, dt, rhoC, hx, hy):
         # Left face
-        for i in range(len(self.BCs['bc_left_E'])/3):
+        for i in range(int(len(self.BCs['bc_left_E'])/3)):
             st=self.BCs['bc_left_E'][2+3*i][0]
             en=self.BCs['bc_left_E'][2+3*i][1]
             if self.BCs['bc_left_E'][3*i]=='T':
@@ -61,7 +61,7 @@ class BCs():
                 
                 
         # Right face
-        for i in range(len(self.BCs['bc_right_E'])/3):
+        for i in range(int(len(self.BCs['bc_right_E'])/3)):
             st=self.BCs['bc_right_E'][2+3*i][0]
             en=self.BCs['bc_right_E'][2+3*i][1]
             if self.BCs['bc_right_E'][3*i]=='T':
@@ -83,7 +83,7 @@ class BCs():
                     E[st:en,-1]+=(Bi+q)*dt/hx[st:en,-1]
                 
         # South face
-        for i in range(len(self.BCs['bc_south_E'])/3):
+        for i in range(int(len(self.BCs['bc_south_E'])/3)):
             st=self.BCs['bc_south_E'][2+3*i][0]
             en=self.BCs['bc_south_E'][2+3*i][1]
             if self.BCs['bc_south_E'][3*i]=='T':
@@ -101,7 +101,7 @@ class BCs():
                 E[0,st:en]+=(Bi+q)*dt/hy[0,st:en]
                 
         # North face
-        for i in range(len(self.BCs['bc_north_E'])/3):
+        for i in range(int(len(self.BCs['bc_north_E'])/3)):
             st=self.BCs['bc_north_E'][2+3*i][0]
             en=self.BCs['bc_north_E'][2+3*i][1]
             if self.BCs['bc_north_E'][3*i]=='T':
@@ -142,49 +142,49 @@ class BCs():
     # Conservation of mass BCs
     def mass(self, m, P, Ax, Ay, vol):
         # Left face
-        for i in range(len(self.BCs['bc_left_mass'])/3):
+        for i in range(int(len(self.BCs['bc_left_mass'])/3)):
             st=self.BCs['bc_left_mass'][2+3*i][0]
             en=self.BCs['bc_left_mass'][2+3*i][1]
             # Gradient
             if self.BCs['bc_left_mass'][3*i]=='grad':
                 m[st:en,0]=m[st:en,1]-self.BCs['bc_left_mass'][1+3*i]*self.dx[st:en,0]
-                if len(self.BCs['bc_left_mass'])/3-i==1:
+                if int(len(self.BCs['bc_left_mass'])/3)-i==1:
                     m[-1,0]=m[-1,1]-self.BCs['bc_left_mass'][-2]*self.dx[-1,0]
             # Pressure flux
             elif self.BCs['bc_left_mass'][3*i]=='grad_P':
                 m[st:en,0]=m[st:en,1]-self.BCs['bc_left_mass'][1+3*i]*self.dx[st:en,0]
-                if len(self.BCs['bc_left_mass'])/3-i==1:
+                if int(len(self.BCs['bc_left_mass'])/3)-i==1:
                     m[-1,0]=m[-1,1]-self.BCs['bc_left_mass'][-2]*self.dx[-1,0]
             # Constant
             else:
                 m[st:en,0]=self.BCs['bc_left_mass'][1+3*i]*vol[st:en,0]
-                if len(self.BCs['bc_left_mass'])/3-i==1:
+                if int(len(self.BCs['bc_left_mass'])/3)-i==1:
                     m[-1,0]=self.BCs['bc_left_mass'][-2]*vol[-1,0]
         # Right face
-        for i in range(len(self.BCs['bc_right_mass'])/3):
+        for i in range(int(len(self.BCs['bc_right_mass'])/3)):
             st=self.BCs['bc_right_mass'][2+3*i][0]
             en=self.BCs['bc_right_mass'][2+3*i][1]
             if self.BCs['bc_right_mass'][3*i]=='grad':
                 m[st:en,-1]=self.BCs['bc_right_mass'][1+3*i]*self.dx[st:en,-1]+m[st:en,-2]
-                if len(self.BCs['bc_right_mass'])/3-i==1:
+                if int(len(self.BCs['bc_right_mass'])/3)-i==1:
                     m[-1,-1]=self.BCs['bc_right_mass'][-2]*self.dx[-1,-1]+m[-1,-2]
         
         # South face
-        for i in range(len(self.BCs['bc_south_mass'])/3):
+        for i in range(int(len(self.BCs['bc_south_mass'])/3)):
             st=self.BCs['bc_south_mass'][2+3*i][0]
             en=self.BCs['bc_south_mass'][2+3*i][1]
             if self.BCs['bc_south_mass'][3*i]=='grad':
                 m[0,st:en]=m[1,st:en]-self.BCs['bc_south_mass'][1+3*i]*self.dy[0,st:en]
-                if len(self.BCs['bc_south_mass'])/3-i==1:
+                if int(len(self.BCs['bc_south_mass'])/3)-i==1:
                     m[0,-1]=m[1,-1]-self.BCs['bc_south_mass'][-2]*self.dy[0,-1]
                     
         # North face
-        for i in range(len(self.BCs['bc_north_mass'])/3):
+        for i in range(int(len(self.BCs['bc_north_mass'])/3)):
             st=self.BCs['bc_north_mass'][2+3*i][0]
             en=self.BCs['bc_north_mass'][2+3*i][1]
             if self.BCs['bc_north_mass'][3*i]=='grad':
                 m[-1,st:en]=self.BCs['bc_north_mass'][1+3*i]*self.dy[-1,st:en]+m[-2,st:en]
-                if len(self.BCs['bc_north_mass'])/3-i==1:
+                if int(len(self.BCs['bc_north_mass'])/3)-i==1:
                     m[-1,-1]=self.BCs['bc_north_mass'][-2]*self.dy[-1,-1]+m[-2,-1]
         return 0
     
@@ -194,7 +194,7 @@ class BCs():
         efly=np.zeros_like(P)
         P_0=np.zeros_like(P)
         # Left face
-        for i in range(len(self.BCs['bc_left_P'])/3):
+        for i in range(int(len(self.BCs['bc_left_P'])/3)):
             st=self.BCs['bc_left_P'][2+3*i][0]
             en=self.BCs['bc_left_P'][2+3*i][1]
             if self.domain=='Axisymmetric':
@@ -209,7 +209,7 @@ class BCs():
         eflx[:,0]=(P_0[:,0]-P[:,0])/(R*T[:,0])
         
         # Right face
-        for i in range(len(self.BCs['bc_right_P'])/3):
+        for i in range(int(len(self.BCs['bc_right_P'])/3)):
             st=self.BCs['bc_right_P'][2+3*i][0]
             en=self.BCs['bc_right_P'][2+3*i][1]
             if self.BCs['bc_right_P'][3*i]=='grad':
@@ -222,7 +222,7 @@ class BCs():
         eflx[:,-1]=(P_0[:,-1]-P[:,-1])/(R*T[:,-1])
         
         # South face
-        for i in range(len(self.BCs['bc_south_P'])/3):
+        for i in range(int(len(self.BCs['bc_south_P'])/3)):
             st=self.BCs['bc_south_P'][2+3*i][0]
             en=self.BCs['bc_south_P'][2+3*i][1]
             if self.BCs['bc_south_P'][3*i]=='grad':
@@ -235,7 +235,7 @@ class BCs():
         efly[0,:]=(P_0[0,:]-P[0,:])/(R*T[0,:])
                 
         # North face
-        for i in range(len(self.BCs['bc_north_P'])/3):
+        for i in range(int(len(self.BCs['bc_north_P'])/3)):
             st=self.BCs['bc_north_P'][2+3*i][0]
             en=self.BCs['bc_north_P'][2+3*i][1]
             if self.BCs['bc_north_P'][3*i]=='grad':
