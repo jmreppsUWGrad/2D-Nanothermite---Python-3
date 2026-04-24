@@ -8,7 +8,7 @@
 
 This file contains the post-processing script for 2D conduction:
     -Called from command line by:
-        python Post-processing.py [Data directory relative to current directory]
+        python Post.py [Data directory relative to current directory]
     -Reads input file to get necessary parameters
     -Reads x,y meshgrid arrays (.npy) for graph output
     -Reads variable arrays (.npy files) and outputs graphs (.png) for 
@@ -26,7 +26,6 @@ Desired:
 import numpy as np
 import os
 import sys
-import string as st
 import matplotlib as mtplt
 from matplotlib import pyplot as plt
 from FileClasses import FileIn
@@ -68,16 +67,16 @@ except:
     sys.exit('Cannot find post-processing input file')
     
 for line in fin:
-    if st.find(line, ':')>0 and st.find(line, '#')!=0:
-        line=st.split(line, ':')
+    if line.find(':')>0 and line.find('#')!=0:
+        line=line.split(':')
         if line[0]=='Directory':
-            dir_files=st.split(line[1], '\n')[0]
+            dir_files=line[1].split('\n')[0]
         elif line[0]=='Times':
-            if st.find(line[1], ',')>0:
-                times=st.split(line[1], ',')
-                times[-1]=st.split(times[-1], '\n')[0]
+            if line[1].find(',')>0:
+                times=line[1].split(',')
+                times[-1]=times[-1].split('\n')[0]
             else:
-                times=st.split(line[1], '\n')[0]
+                times=line[1].split('\n')[0]
         elif line[0]=='x_min':
             xmin=float(line[1])
         elif line[0]=='y_min':
@@ -134,10 +133,10 @@ BCs={}
 t_ign,v_BR='0','0'
 while (type(t_ign) is str) or (type(v_BR) is str):
     dat=input_file.fin.readline()
-    if st.find(dat, 'Average wave')>=0:
-        v_BR=float(st.split(st.split(dat, ':')[1], 'm')[0])
-    if st.find(dat, 'Ignition time')>=0:
-        t_ign=float(st.split(st.split(dat, ':')[1], 'm')[0])
+    if dat.find('Average wave')>=0:
+        v_BR=float(dat.split(':')[1].split('m')[0])
+    if dat.find('Ignition time')>=0:
+        t_ign=float(dat.split(':')[1].split('m')[0])
 input_file.fin.seek(0)
 
 # Get settings
@@ -156,8 +155,8 @@ if type(times) is str:
     i=len(times)
     j=0
     while i>j:
-        if st.find(times[j],'T')==0 and st.find(times[j],'.npy')>0:
-            times[j]=st.split(st.split(times[j],'_')[1],'.npy')[0]
+        if times[j].find('T')==0 and times[j].find('.npy')>0:
+            times[j]=times[j].split('_')[1].split('.npy')[0]
             j+=1
         else:
             del times[j]
@@ -220,12 +219,12 @@ for time in times:
     #               Generate graphs
     ##############################################################
     T=np.load('T_'+time+'.npy', False)
-    if st.find(sources['Source_Kim'],'True')>=0:
+    if sources['Source_Kim'].find('True')>=0:
         eta=np.load('eta_'+time+'.npy', False)
         Y_tot=np.zeros_like(eta)
     
     # Temperature contour
-    if st.find(contours,'True')>=0:
+    if contours.find('True')>=0:
         fig=plt.figure(figsize=fig_size)
         #fig=plt.figure(figsize=(6,3))
         contour_obj=plt.contourf(X*1000, Y*1000, T, alpha=0.5, cmap=cmap_choice, extend='both',levels=lvl_temp)#, vmin=270, vmax=2000)  
@@ -255,7 +254,7 @@ for time in times:
         # fig.savefig('T_1D_'+time+'.png',dpi=300)
         # plt.close(fig)
     
-    if st.find(sources['Source_Kim'],'True')>=0 and st.find(contours,'True')>=0:
+    if sources['Source_Kim'].find('True')>=0 and contours.find('True')>=0:
         # Progress contour
         fig=plt.figure(figsize=fig_size)
         plt.contourf(X*1000, Y*1000, eta, alpha=0.5, cmap=cmap_choice, levels=lvl_eta)#, vmin=0.0, vmax=1.0)  
@@ -272,7 +271,7 @@ for time in times:
         plt.close(fig)
         
         # Reaction rate contour
-        if st.find(Phi_graphs,'True')>=0:
+        if Phi_graphs.find('True')>=0:
             phi=sources['A0']*(1-eta)*np.exp(-sources['Ea']/8.314/T)
             fig=plt.figure(figsize=fig_size)
             plt.contourf(X*1000, Y*1000, phi, alpha=0.5, cmap=cmap_choice)#, vmin=0.0, vmax=1.0)  
@@ -286,12 +285,12 @@ for time in times:
             plt.close(fig)
         
         # 1D Reaction rate profile at centreline
-        if st.find(OneD_graphs,'True')>=0:
+        if OneD_graphs.find('True')>=0:
             fig=plt.figure(figsize=fig_size)
             plt.plot(Y[:,1]*1000, phi[:,int(len(T[0,:])/2)])
             plt.ticklabel_format(style='sci', axis='y', scilimits=(0,0))
             plt.xlabel(y_axis_labels[settings['Domain']])
-            plt.ylabel('$d\eta/dt$ ($s^{-1}$)')
+            plt.ylabel('$d\\eta/dt$ ($s^{-1}$)')
             plt.xlim([xmin,xmax])
             plt.title('Centreline Reaction rate t='+time+' ms')
             fig.savefig('Phi_1D_'+time+'.png',dpi=300)
@@ -301,7 +300,7 @@ for time in times:
             # Mass fraction contours
         for i in range(len(titles)):
             Y_0.append(np.load('rho_'+titles[i]+'_'+time+'.npy', False))
-            if st.find(contours,'True')>=0:
+            if contours.find('True')>=0:
                 fig=plt.figure(figsize=fig_size)
                 plt.contourf(X*1000, Y*1000, Y_0[i], alpha=0.5, cmap=cmap_choice)#, vmin=0.0, vmax=1.0)  
                 plt.colorbar()
@@ -330,7 +329,7 @@ for time in times:
     v[1:,:]=-interpolate(perm[1:,:], perm[:-1,:], settings['diff_interpolation'])\
         /settings['Darcy_mu']*(P[1:,:]-P[:-1,:])/(Y[1:,:]-Y[:-1,:])
 #    pl=25
-    if st.find(contours,'True')>=0:
+    if contours.find('True')>=0:
         fig=plt.figure(figsize=fig_size)
     #    plt.quiver(X[::pl, ::pl]*1000, Y[::pl, ::pl]*1000, \
     #                  u[::pl, ::pl], v[::pl, ::pl])
@@ -346,7 +345,7 @@ for time in times:
         plt.close(fig)
     
     # Darcy Velocity contours
-    if st.find(darcy, 'True')>=0 and st.find(contours,'True')>=0:
+    if darcy.find( 'True')>=0 and contours.find('True')>=0:
         fig=plt.figure(figsize=fig_size)
         plt.contourf(X*1000, Y*1000, u, alpha=0.5, cmap=cmap_choice)#, vmin=270, vmax=2000)  
         plt.colorbar()
@@ -380,11 +379,11 @@ for time in times:
     
     print('Processed '+time)
     fout.write('     Mass balance residual: %.3f'%(\
-                          np.sum(Y_tot-(float(st.split(settings['rho_IC'], ',')[0])*settings['Porosity']+\
-                            float(st.split(settings['rho_IC'], ',')[1])*(1-settings['Porosity'])))/\
-                            (np.size(Y_tot)*(float(st.split(settings['rho_IC'], ',')[0])*settings['Porosity']+\
-                            float(st.split(settings['rho_IC'], ',')[1])*(1-settings['Porosity']))))+'\n')
-    if st.find(darcy, 'True')>=0:
+                          np.sum(Y_tot-(float(settings['rho_IC'].split(',')[0])*settings['Porosity']+\
+                            float(settings['rho_IC'].split(',')[1])*(1-settings['Porosity'])))/\
+                            (np.size(Y_tot)*(float(settings['rho_IC'].split(',')[0])*settings['Porosity']+\
+                            float(settings['rho_IC'].split(',')[1])*(1-settings['Porosity']))))+'\n')
+    if darcy.find('True')>=0:
         fout.write('     Max velocity u: %.1f'%(np.amax(abs(u)))+'\n')
         fout.write('     Max velocity v: %.1f'%(np.amax(abs(v)))+'\n')
     
@@ -435,36 +434,36 @@ fout.write('Max pressure: %.0f\n'%(p_max))
 fout.write('avg rho_g: %.4f\n'%(rho_avg))
 fout.write('avg Darcy v: %.4f\n'%(u_avg))
 
-# For non-dimensional numbers
-Cp=geom.Cp_calc.get_Cp(np.ones(3)*2844, geom.Cp_g[0])[0]
-#L_ref=settings['Carmen_diam']
-L_ref=settings['Width']
-#rho_ref=BCs['bc_right_P'][1]/settings['gas_constant']/2844
-rho_ref=101325/settings['gas_constant']/2844
-#rho_ref=rho_avg
-#rho_ref=float(geom.rho[1])
-#u_ref=geom.perm[0,0]/geom.mu*BCs['bc_right_P'][1]/L
-u_ref=geom.perm[0,0]/geom.mu*101325/L_ref
-#u_ref=v_BR
-#u_ref=u_avg
-fout.write('u_ref: %.12f\n'%(u_ref))
-fout.write('Pe_y: %.12f\n'%(rho_ref*u_ref*Cp*L_ref/k[0,0]))
-#fout.write('Pe_y: %.12f\n'%(rho_ref*u_ref*settings['gas_constant']*L_ref/k[0,0]))
+# # For non-dimensional numbers
+# Cp=geom.Cp_calc.get_Cp(np.ones(3)*2844, geom.Cp_g[0])[0]
+# #L_ref=settings['Carmen_diam']
+# L_ref=settings['Width']
+# #rho_ref=BCs['bc_right_P'][1]/settings['gas_constant']/2844
+# rho_ref=101325/settings['gas_constant']/2844
+# #rho_ref=rho_avg
+# #rho_ref=float(geom.rho[1])
+# #u_ref=geom.perm[0,0]/geom.mu*BCs['bc_right_P'][1]/L
+# u_ref=geom.perm[0,0]/geom.mu*101325/L_ref
+# #u_ref=v_BR
+# #u_ref=u_avg
+# fout.write('u_ref: %.12f\n'%(u_ref))
+# fout.write('Pe_y: %.12f\n'%(rho_ref*u_ref*Cp*L_ref/k[0,0]))
+# #fout.write('Pe_y: %.12f\n'%(rho_ref*u_ref*settings['gas_constant']*L_ref/k[0,0]))
 
-fout.write('Da_y: %f\n'%(L_ref/u_ref/(1/sources['A0'])))
-#fout.write('Da_y: %f\n'%(L/v_BR/(1/sources['A0'])))
+# fout.write('Da_y: %f\n'%(L_ref/u_ref/(1/sources['A0'])))
+# #fout.write('Da_y: %f\n'%(L/v_BR/(1/sources['A0'])))
 
-fout.write('Burn rate: %f\n'%(v_BR/u_ref))
-#fout.write('Burn rate: %f\n'%(rho*v_BR*L/geom.mu))
-#fout.write('Burn rate: %f\n'%(v_BR/(sources['A0']*L)))
+# fout.write('Burn rate: %f\n'%(v_BR/u_ref))
+# #fout.write('Burn rate: %f\n'%(rho*v_BR*L/geom.mu))
+# #fout.write('Burn rate: %f\n'%(v_BR/(sources['A0']*L)))
 
-#fout.write('Ignition delay: %f\n'%(geom.mu*t_ign/rho/L**2))
-fout.write('Ignition delay: %f\n'%(t_ign*u_ref/L_ref))
-#fout.write('Ignition delay: %f\n'%(t_ign*sources['A0']))
+# #fout.write('Ignition delay: %f\n'%(geom.mu*t_ign/rho/L**2))
+# fout.write('Ignition delay: %f\n'%(t_ign*u_ref/L_ref))
+# #fout.write('Ignition delay: %f\n'%(t_ign*sources['A0']))
 ##############################################################
 #               1D plots
 ##############################################################
-if st.find(OneD_graphs,'True')>=0:
+if OneD_graphs.find('True')>=0:
     print('Creating 1D plots')
     fig=plt.figure(figsize=fig_size)
     for time in times:
@@ -480,7 +479,7 @@ if st.find(OneD_graphs,'True')>=0:
     fig.savefig('T_1D.png',dpi=300)
     plt.close(fig)
     
-    if st.find(sources['Source_Kim'],'True')>=0:
+    if sources['Source_Kim'].find('True')>=0:
         fig=plt.figure(figsize=fig_size)
         for time in times:
             eta=np.load('eta_'+time+'.npy', False)
@@ -490,7 +489,7 @@ if st.find(OneD_graphs,'True')>=0:
             plt.plot(Y[:,1]*1000, phi[:,int(len(T[0,:])/2)], label='t='+time)
         plt.ticklabel_format(style='sci', axis='y', scilimits=(0,0))
         plt.xlabel(y_axis_labels[settings['Domain']])
-        plt.ylabel('$d\eta/dt$ ($s^{-1}$)')
+        plt.ylabel('$d\\eta/dt$ ($s^{-1}$)')
         plt.xlim([xmin,xmax])
         plt.legend()
         plt.title('Centreline Reaction rate Evolution')
