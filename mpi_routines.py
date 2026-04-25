@@ -112,6 +112,7 @@ class MPI_comms():
         maxDim=int(np.sqrt(self.size))+1 # Square root of size (max dimension)
         otrDim=int(self.size/maxDim)
         while maxDim>=1:
+            otrDim=int(self.size/maxDim)
             if self.size%maxDim==0 and domain.Nx%maxDim==0 and domain.Ny%otrDim==0:
                 ranks=ranks.reshape((otrDim, maxDim))
                 break
@@ -120,7 +121,7 @@ class MPI_comms():
                 break
             else:
                 maxDim-=1
-                otrDim=int(self.size/maxDim)
+                
         if maxDim==0:
             return 1
         #ranks=ranks.reshape((self.size/maxDim, maxDim))
