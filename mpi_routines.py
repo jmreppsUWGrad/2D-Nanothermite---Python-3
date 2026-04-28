@@ -144,34 +144,56 @@ class MPI_comms():
         domain.E=self.split_var(domain.E, domain)
         
         # Designate neighboring processes
-        #for i in range(self.size/maxDim):
+        maxDim = len(ranks[:,0]) # number of rows
+        otrDim = len(ranks[0,:]) # number of columns
+        # Go through every row of processes
         for i in range(len(ranks[:,0])):
-            # Unique case where there is only one row of processes
-            #print(ranks[i])
-            #print(maxDim)
-            if self.rank in ranks[i] and maxDim==1:
+            # Unique cases where there is only one row of processes (will only go here once)
+            if maxDim==1: 
+                domain.proc_top=-1
+                domain.proc_bottom=-1
+                # Only one process (serial)
+                if otrDim==1:
+                    domain.proc_left=-1
+                    domain.proc_right=-1
+                # More than 1 process
+                else:
+                    # Go through every column
+                    for j in range(otrDim):
+                        # Process at x=0
+                        if self.rank==ranks[0,j] and j==0:
+                            domain.proc_left=-1
+                            domain.proc_right=ranks[0,j+1]
+                            
+                        # Process at x=x_max
+                        elif self.rank==ranks[0,j] and j==otrDim-1:
+                            domain.proc_right=-1
+                            domain.proc_left=ranks[0,j-1]
+                            
+                        # Interior
+                        elif self.rank==ranks[0,j]:
+                            domain.proc_left=ranks[0,j-1]
+                            domain.proc_right=ranks[0,j+1]
+                
+            # Unique case where there is only one column of processes
+            elif otrDim==1: 
                 domain.proc_left=-1
                 domain.proc_right=-1
-                # Only one process (serial)
-                if len(ranks)==1:
-                    domain.proc_bottom=-1
-                    domain.proc_top=-1
-                    
                 # Process at y=0
-                elif i==0:
+                if self.rank==ranks[i,0] and i==0:
                     domain.proc_bottom=-1
                     domain.proc_top=ranks[i+1,0]
                     
                 # Process at y=y_max
-                elif i==otrDim-1:
+                elif self.rank==ranks[i,0] and i==maxDim-1:
                     domain.proc_top=-1
                     domain.proc_bottom=ranks[i-1,0]
                     
                 # Interior
-                else:
+                elif self.rank==ranks[i,0]:
                     domain.proc_bottom=ranks[i-1,0]
                     domain.proc_top=ranks[i+1,0]
-                    
+            
             # Processes at y=0
             elif self.rank in ranks[i] and i==0:
                 domain.proc_bottom=-1
@@ -196,7 +218,7 @@ class MPI_comms():
                     domain.proc_right=ranks[i,self.rank-ranks[i,0]+1]
                     
             # Processes at y=y_max
-            elif self.rank in ranks[i] and i==len(ranks[:,0])-1: #self.size/maxDim-1:
+            elif self.rank in ranks[i] and i==maxDim-1:
                 domain.proc_top=-1
                 # Edge x=0
                 if self.rank==ranks[i,0]:
@@ -236,6 +258,12 @@ class MPI_comms():
                     domain.proc_left=ranks[i,self.rank-ranks[i,0]-1]
                     domain.proc_right=ranks[i,self.rank-ranks[i,0]+1]
             
+        
+        print('Rank: '+str(self.rank))
+        print('       Top: '+str(domain.proc_top))
+        print('Left: '+str(domain.proc_left)+'       '+'Right: '+str(domain.proc_right))
+        print('       Bottom: '+str(domain.proc_bottom))
+        
         return 0
     
     # Update ghost nodes for processes
@@ -469,7 +497,7 @@ class MPI_comms():
         # For one column of processes
         if Domain.proc_arrang.shape[1]==1:
             # Start global variable based on which row process is in
-            if Domain.proc_row==0:
+            if self.rank==Domain.proc_arrang[0,0]:
                 var_global=var[:-1,:].copy()
             elif self.rank==Domain.proc_arrang[-1,0]:
                 var_global=var[1:,:].copy()
@@ -486,6 +514,28 @@ class MPI_comms():
                     a=np.empty(len_arr)
                     self.comm.Recv(a, source=Domain.proc_arrang[i+1,0])
                     var_global=np.block([[var_global],[a]])
+        
+        # For one row of processes
+        elif Domain.proc_arrang.shape[0]==1:
+            # Start global variable based on which column process 0 is in
+            if self.rank==Domain.proc_arrang[0,0]:
+                var_global=var[:,:-1].copy()
+            elif self.rank==Domain.proc_arrang[0,-1]:
+                var_global=var[:,1:].copy()
+            else:
+                var_global=var[:,1:-1].copy()
+            # Send variable to process 0 for final compile
+            if self.rank!=0:
+                self.comm.send(np.shape(var_global), dest=0)
+                self.comm.Send(var_global, dest=0)
+            # Process 0 compiles global variable
+            else:
+                for i in range(len(Domain.proc_arrang[0,:])-1):
+                    len_arr=self.comm.recv(source=Domain.proc_arrang[0,i+1])
+                    a=np.empty(len_arr)
+                    self.comm.Recv(a, source=Domain.proc_arrang[0,i+1])
+                    var_global=np.block([var_global,a])
+        
         # Collect data from each row of processes at first process of the row
         elif self.rank in Domain.proc_arrang[:,0]:
             # Start global variable based on which row process is in
