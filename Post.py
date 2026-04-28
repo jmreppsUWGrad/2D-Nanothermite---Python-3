@@ -49,7 +49,7 @@ print('#          Part of Masters Thesis at UW 2018-2020    #')
 print('######################################################\n')
 
 inputargs=sys.argv
-if len(inputargs)>1:
+if len(inputargs)==2:
     inp_file=inputargs[1]
 else:
     print('Usage is: python Post.py [Input File]\n')
@@ -428,38 +428,39 @@ for time in times:
 ##############################################################
 #               Non-dimensional numbers (characteristic and averages)
 ##############################################################
-rho_avg/=len(times)
-u_avg/=len(times)
-fout.write('Max pressure: %.0f\n'%(p_max))
-fout.write('avg rho_g: %.4f\n'%(rho_avg))
-fout.write('avg Darcy v: %.4f\n'%(u_avg))
+if settings['Model']=='Species':
+    rho_avg/=len(times)
+    u_avg/=len(times)
+    fout.write('Max pressure: %.0f\n'%(p_max))
+    fout.write('avg rho_g: %.4f\n'%(rho_avg))
+    fout.write('avg Darcy v: %.4f\n'%(u_avg))
 
-# # For non-dimensional numbers
-# Cp=geom.Cp_calc.get_Cp(np.ones(3)*2844, geom.Cp_g[0])[0]
-# #L_ref=settings['Carmen_diam']
-# L_ref=settings['Width']
-# #rho_ref=BCs['bc_right_P'][1]/settings['gas_constant']/2844
-# rho_ref=101325/settings['gas_constant']/2844
-# #rho_ref=rho_avg
-# #rho_ref=float(geom.rho[1])
-# #u_ref=geom.perm[0,0]/geom.mu*BCs['bc_right_P'][1]/L
-# u_ref=geom.perm[0,0]/geom.mu*101325/L_ref
-# #u_ref=v_BR
-# #u_ref=u_avg
-# fout.write('u_ref: %.12f\n'%(u_ref))
-# fout.write('Pe_y: %.12f\n'%(rho_ref*u_ref*Cp*L_ref/k[0,0]))
-# #fout.write('Pe_y: %.12f\n'%(rho_ref*u_ref*settings['gas_constant']*L_ref/k[0,0]))
+    # For non-dimensional numbers
+    Cp=geom.Cp_calc.get_Cp(np.ones(3)*2844, geom.Cp_g[0])[0]
+    #L_ref=settings['Carmen_diam']
+    L_ref=settings['Width']
+    #rho_ref=BCs['bc_right_P'][1]/settings['gas_constant']/2844
+    rho_ref=101325/settings['gas_constant']/2844
+    #rho_ref=rho_avg
+    #rho_ref=float(geom.rho[1])
+    #u_ref=geom.perm[0,0]/geom.mu*BCs['bc_right_P'][1]/L
+    u_ref=geom.perm[0,0]/geom.mu*101325/L_ref
+    #u_ref=v_BR
+    #u_ref=u_avg
+    fout.write('u_ref: %.12f\n'%(u_ref))
+    fout.write('Pe_y: %.12f\n'%(rho_ref*u_ref*Cp*L_ref/k[0,0]))
+    #fout.write('Pe_y: %.12f\n'%(rho_ref*u_ref*settings['gas_constant']*L_ref/k[0,0]))
 
-# fout.write('Da_y: %f\n'%(L_ref/u_ref/(1/sources['A0'])))
-# #fout.write('Da_y: %f\n'%(L/v_BR/(1/sources['A0'])))
+    fout.write('Da_y: %f\n'%(L_ref/u_ref/(1/sources['A0'])))
+    #fout.write('Da_y: %f\n'%(L/v_BR/(1/sources['A0'])))
 
-# fout.write('Burn rate: %f\n'%(v_BR/u_ref))
-# #fout.write('Burn rate: %f\n'%(rho*v_BR*L/geom.mu))
-# #fout.write('Burn rate: %f\n'%(v_BR/(sources['A0']*L)))
+    fout.write('Burn rate: %f\n'%(v_BR/u_ref))
+    #fout.write('Burn rate: %f\n'%(rho*v_BR*L/geom.mu))
+    #fout.write('Burn rate: %f\n'%(v_BR/(sources['A0']*L)))
 
-# #fout.write('Ignition delay: %f\n'%(geom.mu*t_ign/rho/L**2))
-# fout.write('Ignition delay: %f\n'%(t_ign*u_ref/L_ref))
-# #fout.write('Ignition delay: %f\n'%(t_ign*sources['A0']))
+    #fout.write('Ignition delay: %f\n'%(geom.mu*t_ign/rho/L**2))
+    fout.write('Ignition delay: %f\n'%(t_ign*u_ref/L_ref))
+    #fout.write('Ignition delay: %f\n'%(t_ign*sources['A0']))
 ##############################################################
 #               1D plots
 ##############################################################
