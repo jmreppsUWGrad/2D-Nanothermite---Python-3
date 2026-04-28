@@ -27,7 +27,6 @@ import numpy as np
 #import CoolProp.CoolProp as CP
 import os
 import sys
-import string as st
 import matplotlib as mtplt
 from matplotlib import pyplot as plt
 #from mpl_toolkits.mplot3d import Axes3D
@@ -42,10 +41,10 @@ print('#          Part of Masters Thesis at UW 2018-2020    #')
 print('######################################################\n')
 
 inputargs=sys.argv
-if len(inputargs)>1:
+if len(inputargs)==2:
     inp_file=inputargs[1]
 else:
-    print('Usage is: python Post.py [Input File]\n')
+    print('Usage is: python Post_timeEvolv.py [Input File]\n')
     print('where\n')
     print('[Input File] is the Post-processing input file')
     print('***********************************')
@@ -60,26 +59,26 @@ except:
     sys.exit('Cannot find post-processing input file')
     
 for line in fin:
-    if st.find(line, ':')>0 and st.find(line, '#')!=0:
-        line=st.split(line, ':')
+    if line.find(':')>0 and line.find('#')!=0:
+        line=line.split(':')
         if line[0]=='Directory':
-            dir_files=st.split(line[1], '\n')[0]
+            dir_files=line[1].split('\n')[0]
         elif line[0]=='Times':
-            if st.find(line[1], ',')>0:
-                times=st.split(line[1], ',')
-                times[-1]=st.split(times[-1], '\n')[0]
+            if line[1].find(',')>0:
+                times=line[1].split(',')
+                times[-1]=times[-1].split('\n')[0]
             else:
-                times=st.split(line[1], '\n')[0]
+                times=line[1].split('\n')[0]
         elif line[0]=='Temp_min':
             temp_min=float(line[1])
         elif line[0]=='Temp_max':
             temp_max=float(line[1])
         elif line[0]=='Time_Temp_Pos':
-            Phi_graphs=st.split(line[1], ',')
+            Phi_graphs=line[1].split(',')
             Phi_graphs=[int(Phi_graphs[0]),int(Phi_graphs[1])]
             Phi_graphs=tuple(Phi_graphs)
         elif line[0]=='Variable':
-            var=st.split(line[1], '\n')[0]
+            var=line[1].split('\n')[0]
 
 fin.close()
 
@@ -96,8 +95,8 @@ if type(times) is str:
     i=len(times)
     j=0
     while i>j:
-        if st.find(times[j],'T')==0 and st.find(times[j],'.npy')>0:
-            times[j]=st.split(st.split(times[j],'_')[1],'.npy')[0]
+        if times[j].find('T')==0 and times[j].find('.npy')>0:
+            times[j]=times[j].split('_')[1].split('.npy')[0]
             j+=1
         else:
             del times[j]
@@ -125,7 +124,7 @@ nice_fonts = {
 mtplt.rcParams.update(nice_fonts)
 cmap_choice=mtplt.cm.viridis
 y_label={'Temperature': 'T [$K$]', 'Pressure': 'P [$Pa$]',\
-         'eta': '$\eta$ [-]', 'rho_g': 'Density [$kg/m^3$]',\
+         'eta': '$\\eta$ [-]', 'rho_g': 'Density [$kg/m^3$]',\
          'rho_s': 'Density [$kg/m^3$]'}
 var_name={'Temperature': 'T', 'Pressure': 'P',\
          'eta': 'eta', 'rho_g': 'rho_g', 'rho_s': 'rho_s'}
