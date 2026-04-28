@@ -258,12 +258,6 @@ class MPI_comms():
                     domain.proc_left=ranks[i,self.rank-ranks[i,0]-1]
                     domain.proc_right=ranks[i,self.rank-ranks[i,0]+1]
             
-        
-        print('Rank: '+str(self.rank))
-        print('       Top: '+str(domain.proc_top))
-        print('Left: '+str(domain.proc_left)+'       '+'Right: '+str(domain.proc_right))
-        print('       Bottom: '+str(domain.proc_bottom))
-        
         return 0
     
     # Update ghost nodes for processes

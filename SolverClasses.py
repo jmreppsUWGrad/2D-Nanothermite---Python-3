@@ -340,10 +340,8 @@ class TwoDimSolver():
         # If problem with time step size, exit program
         if (np.isnan(dt)) or (dt<=0):
             return 1, dt, ign
-        # If time step size good, continue
-        if self.Domain.rank==0:
-            print('Time step %i, Step size=%.7fms, Time elapsed=%fs;'%(nt+1,dt*1000, t+dt))
         
+        # If time step size good, continue
         ###################################################################
         # Calculate source and Porous medium terms
         ###################################################################
